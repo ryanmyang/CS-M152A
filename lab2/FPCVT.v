@@ -1,8 +1,8 @@
-module lab2 (
-    input  wire [11:0] D,
+module FPCVT(
+    input wire [11:0] D,
     output reg S,
-    output reg [2:0]  E,
-    output reg [3:0]  F
+    output reg [2:0] E,
+    output reg [3:0] F
 );
 
     reg [11:0] magnitude;
@@ -13,11 +13,19 @@ module lab2 (
             E = 3'b111;
             F = 4'b1111;
         end
+
+
+        else begin // everything else
+
         // If positive keep mag, if negative, take 2's complement
-        else if (S == 1'b0) begin
-            magnitude = D;
-        end else begin
-            magnitude = ~D + 1;
+            if (S == 1'b0) begin
+                magnitude = D;
+            end else begin
+                magnitude = ~D + 1;
+            end
+
+            
+
         end
 
 

@@ -1,14 +1,14 @@
 
 `timescale 1ns/1ps
 
-module lab2_tb;
+module FPCVT_tb;
 
     reg [11:0] D;
     wire S;
     wire [2:0] E;
     wire [3:0] F;
 
-    lab2 uut (
+    FPCVT uut (
         .D(D),
         .S(S),
         .E(E),
@@ -18,7 +18,7 @@ module lab2_tb;
     initial begin
         $monitor("Time=%0t | D=%b | S=%b | E=%b | F=%b", $time, D, S, E, F);
         $dumpfile("wave.vcd");
-        $dumpvars(0, lab2_tb);
+        $dumpvars(0, FPCVT_tb);
         // Test zero
         D = 12'b000000000000;
         #10;
