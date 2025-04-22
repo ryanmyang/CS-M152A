@@ -1,0 +1,66 @@
+$date
+	Tue Apr 22 12:30:16 2025
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module lab2_tb $end
+$var wire 1 ! y $end
+$var reg 1 " a $end
+$var reg 1 # b $end
+$var reg 1 $ clk $end
+$var reg 1 % reset $end
+$scope module uut $end
+$var wire 1 " a $end
+$var wire 1 # b $end
+$var wire 1 ! y $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+$end
+#0
+$dumpvars
+1%
+0$
+0#
+0"
+0!
+$end
+#5000
+1$
+#10000
+0$
+0%
+#15000
+1$
+#20000
+0$
+1#
+#25000
+1$
+#30000
+0$
+0#
+1"
+#35000
+1$
+#40000
+1!
+0$
+1#
+#45000
+1$
+#50000
+0!
+0$
+0#
+0"
+#55000
+1$
+#60000
+0$
