@@ -1,55 +1,46 @@
-`timescale 1ns / 1ps
+
+`timescale 1ns/1ps
 
 module lab2_tb;
 
-    // Inputs
-    reg clk;
-    reg reset;
-    reg a;
-    reg b;
+    reg [11:0] D;
+    wire S;
+    wire [2:0] E;
+    wire [3:0] F;
 
-    // Outputs
-    wire y;
-
-    // Instantiate the Unit Under Test (UUT)
     lab2 uut (
-        .a(a),
-        .b(b),
-        .y(y)
+        .D(D),
+        .S(S),
+        .E(E),
+        .F(F)
     );
 
-    // Clock generation
-    always #5 clk = ~clk;
-
     initial begin
-        // Initialize Inputs
-        clk = 0;
-        reset = 1;
-        a = 0;
-        b = 0;
-
-        // Dump waveforms
+        $monitor("Time=%0t | D=%b | S=%b | E=%b | F=%b", $time, D, S, E, F);
         $dumpfile("wave.vcd");
         $dumpvars(0, lab2_tb);
-
-        // Wait for global reset
+        // Test zero
+        D = 12'b000000000000;
         #10;
-        reset = 0;
 
-        // Apply test cases
-        #10 a = 0; b = 1;
-        #10 a = 1; b = 0;
-        #10 a = 1; b = 1;
-        #10 a = 0; b = 0;
+        // Test maximum positive value
+        D = 12'b011111111111; // 2047
+        #10;
 
-        // Add more test cases as needed
-        #10 $finish;
-    end
+        // Test minimum negative value (-2048)
+        D = 12'b100000000000;
+        #10;
 
-    initial begin
-        // Monitor signals
-        $monitor("Time = %0t | clk = %b | reset = %b | a = %b | b = %b | y = %b", 
-                 $time, clk, reset, a, b, y);
+        // Test -2047
+        D = 12'b100000000001;
+        #10;
+
+        // Test -1
+        D = 12'b111111111111;
+        #10;
+
+
+        $finish;
     end
 
 endmodule
