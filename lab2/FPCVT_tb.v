@@ -39,12 +39,20 @@ module FPCVT_tb;
         D = 12'b111111111111;
         #10;
 
-        // small positive numbers
+        // no rounding positive numbers (can be represented with 4 bits F, and E)
         D = 12'b000000000001;  // +1
         #10;
         D = 12'b000000000010;  // +2
         #10;
         D = 12'b000000010000;  // +16
+        #10;
+        D = 12'b000000100000;  // +32
+        #10;
+        D = 12'b000001000000;  // +64
+        #10;
+        D = 12'b000010000000;  // +128
+        #10;
+        D = 12'b000100000000;  // +256
         #10;
 
         // small negative numbers
