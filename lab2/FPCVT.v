@@ -6,7 +6,8 @@ module FPCVT(
 );
 
     reg [11:0] magnitude;
-    wire [3:0] leading_zeroes;
+    integer shift_amount;
+    reg [11:0] shifted;
     
     always @(*) begin
         S = D[11];
@@ -26,10 +27,18 @@ module FPCVT(
                 magnitude = ~D + 1;
             end
 
-            // Count leading zeroes
-            E = count_leading_zeroes_set_E(magnitude);
-
-
+            // If magnitude is 0, set E and F to 0, otherwise just count leading zeroes
+            //     (The spec only specified the E for leading zeroes, so hardcoding otherwise)
+            if (magnitude == 12'b000000000000) begin
+                E = 3'b000;
+                F = 4'b0000;
+            end else begin
+                // Count leading zeroes
+                E = count_leading_zeroes_set_E(magnitude);
+                shift_amount = 3'd7 - E + 1; // calculate how much to shift based on what we set E. 
+                shifted = magnitude << shift_amount;
+                F = shifted[11:8];
+            end
 
 
         end
