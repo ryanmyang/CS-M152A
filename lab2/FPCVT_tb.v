@@ -64,7 +64,7 @@ module FPCVT_tb;
         #10;
 
         // positives
-        D = 12'b000010101101;  // e.g., +173 decimal
+        D = 12'b000001111101;  // 125 (spec example, should be 128)
         #10;
 
 

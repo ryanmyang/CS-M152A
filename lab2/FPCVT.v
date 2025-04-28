@@ -8,6 +8,7 @@ module FPCVT(
     reg [11:0] magnitude;
     integer shift_amount;
     reg [11:0] shifted;
+    reg fifth_bit;
     
     always @(*) begin
         S = D[11];
@@ -33,11 +34,41 @@ module FPCVT(
                 E = 3'b000;
                 F = 4'b0000;
             end else begin
-                // Count leading zeroes
+                // Count leading zeroes, set E and F
                 E = count_leading_zeroes_set_E(magnitude);
                 shift_amount = 3'd7 - E + 1; // calculate how much to shift based on what we set E. 
                 shifted = magnitude << shift_amount;
                 F = shifted[11:8];
+
+
+                // ROUNDING
+                // get the 5th bit
+                fifth_bit = shifted[7];
+                // If the 5th bit is 1, round up
+                if (fifth_bit == 1'b1) begin
+
+
+                    // If F is 1111, F becomes 1000 and E is incremented
+                        // (in spec)
+                    if (F == 4'b1111) begin
+                        F = 4'b1000;
+                        // If E is 111 and cant be incremented, set to max number
+                        // (also just says to do so in the spec)
+                        if (E == 3'b111) begin
+                            E = 3'b111;
+                            F = 4'b1111;
+                        end else begin // if it can be incremented increment it
+                            E = E + 1;
+                        end
+                        // The spec says something about "the overflow 
+                        // possibility can be detected either before or after
+                        // the addition ofthe rounding bit. Which method is easier"
+                        // Do we have to do it before or after? I did it after i think idk
+                    
+                    end else begin // If F is not 1111, just round up by incrementing
+                        F = F + 1;
+                    end
+                end
             end
 
 
