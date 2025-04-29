@@ -5,7 +5,7 @@ module FPCVT(
     output reg [3:0] F
 );
 
-    reg [11:0] magnitude;
+    reg [10:0] magnitude;
     integer shift_amount;
     reg [11:0] shifted;
     reg fifth_bit;
