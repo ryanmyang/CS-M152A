@@ -1,0 +1,49 @@
+`timescale 1ns / 1ps
+//////////////////////////////////////////////////////////////////////////////////
+// Company: 
+// Engineer: 
+// 
+// Create Date: 05/06/2025 01:47:13 PM
+// Design Name: 
+// Module Name: display_mux
+// Project Name: 
+// Target Devices: 
+// Tool Versions: 
+// Description: 
+// 
+// Dependencies: 
+// 
+// Revision:
+// Revision 0.01 - File Created
+// Additional Comments:
+// 
+//////////////////////////////////////////////////////////////////////////////////
+
+
+module display_mux(
+    input wire clk_100hz,
+    input [3:0] dig3,
+    input [3:0] dig2,
+    input [3:0] dig1,
+    input [3:0] dig0,
+    output reg [3:0]an,
+    output reg [6:0] seg
+    );
+    
+    reg [1:0] sel = 0; //active one
+    wire [6:0] seg_data;
+    reg [3:0] num;
+    num_to_7seg decoder(.num(num), .seg(deg_data));
+    always @(posedge clk_100hz) begin
+        sel <= sel + 1;
+        case(sel)
+            2'd0: begin an = 4'1110; num = dig0; end
+            2'd1: begin an = 4'1101; num = dig0; end
+            2'd2: begin an = 4'1011; num = dig0; end
+            2'd3: begin an = 4'0111; num = dig0; end
+        endcase
+        seg <= seg_data;
+    end
+    endmodule
+    
+endmodule
