@@ -38,12 +38,12 @@ module display_mux(
         sel <= sel + 1;
         case(sel)
             2'd0: begin an = 4'1110; num = dig0; end
-            2'd1: begin an = 4'1101; num = dig0; end
-            2'd2: begin an = 4'1011; num = dig0; end
-            2'd3: begin an = 4'0111; num = dig0; end
+            2'd1: begin an = 4'1101; num = dig1; end
+            2'd2: begin an = 4'1011; num = dig2; end
+            2'd3: begin an = 4'0111; num = dig3; end
         endcase
         seg <= seg_data;
     end
-    endmodule
-    
+
 endmodule
+    
