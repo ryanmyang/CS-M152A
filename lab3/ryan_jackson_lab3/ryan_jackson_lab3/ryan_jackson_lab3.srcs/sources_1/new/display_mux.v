@@ -33,19 +33,21 @@ module display_mux(
     reg [1:0] sel = 0; //active one
     reg [3:0] num; // current digit to display 
     wire [6:0] seg_data; // segment data for the current digit
-    num_to_7seg decoder(.num(num), .seg(deg_data));
+    num_to_7seg decoder(.num(num), .seg(seg_data));
     always @(posedge clk_100hz) begin
         // basically every cycle, increment which digit is active
         // when each digit is active, set the anode to 0 and the rest to 1
         // and set the input num so that the decoder can update the segment data
-        sel <= sel + 1;
+       
         case(sel)
-            2'd0: begin an = 4'1110; num = dig0; end
-            2'd1: begin an = 4'1101; num = dig1; end
-            2'd2: begin an = 4'1011; num = dig2; end
-            2'd3: begin an = 4'0111; num = dig3; end
+            2'd0: begin an <= 4'b1110; num <= dig1; end
+            2'd1: begin an <= 4'b1101; num <= dig2; end
+            2'd2: begin an <= 4'b1011; num <= dig3; end
+            2'd3: begin an <= 4'b0111; num <= dig0; end
         endcase
+         
         seg <= seg_data;
+        sel <= sel + 1;
     end
 
 endmodule
