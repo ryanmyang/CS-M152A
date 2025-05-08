@@ -23,30 +23,51 @@
 module stopwatch(
     input wire clk_1hz,
     input wire rst,
-    input wire pause,
-    output reg [5:0] sec = 0,
-    output reg [5:0] min = 0
+    input wire enable,
+    input wire mode,
+      output reg [3:0] dig3,
+      output reg [3:0] dig2,
+      output reg [3:0] dig1,
+      output reg [3:0] dig0
     );
     
-    always @(posedge clk_1hz) begin
-        if(rst) begin
-            sec <= 0;
-            min <= 0;
-        end else if (!pause) begin
-            if (sec == 59) begin
-                sec <= 0;
-                if(min != 59) begin
-                    min <= min + 1;
+    
+    always @(posedge clk_1hz or posedge rst) begin
+      if(rst) begin
+            dig3 <= 0;
+            dig2 <= 0;
+            dig1 <= 0;
+            dig0 <= 0;
+        end
+ 
+        
+        
+        
+        
+ 
+       else if (enable) begin
+            if (dig0 == 9) begin
+                dig0 <= 0;
+                if(dig1 == 5) begin
+                    dig1 <= 0;
+                         if (dig2 == 9) begin
+                           dig2 <= 0;
+                           if(dig3 == 5) 
+                               dig3 <= 0;
+                           else 
+                                dig3 <= dig3 + 1;
+                         end else begin
+                         dig2 <= dig2 + 1;
+                         end
                 end else begin
-                    min <= 0;
+                    dig1 <= dig1 + 1;
+                    end
+               end else begin  
+                dig0 <= dig0 + 1;
                 end
-             end else begin
-                sec <= sec + 1;
-             end
+             
         end
         
     end
-    
-    
     
 endmodule
