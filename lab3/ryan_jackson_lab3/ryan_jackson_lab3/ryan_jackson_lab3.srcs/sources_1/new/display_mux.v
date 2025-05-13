@@ -40,6 +40,7 @@ module display_mux(
         blink <= ~blink; // toggle blink every 4hz
     end
     wire [6:0] seg_data; // segment data for the current digit
+    reg blank_this_digit; //flag to toggle when need to blank out digit on flash
     num_to_7seg decoder(.num(num), .seg(seg_data));
     always @(posedge clk_100hz) begin
         // basically every cycle, increment which digit is active
@@ -54,7 +55,7 @@ module display_mux(
         endcase
 
         // if the digit is the selected one, and it's in the off phase, blank it
-        wire blank_this_digit =
+        blank_this_digit =
             adj_sw && blink &&
             ((sel_sw && (sel == 2'd0 || sel == 2'd1)) ||   // adjusting seconds
             (!sel_sw && (sel== 2'd2 || sel== 2'd3)));   // adjusting minutes
