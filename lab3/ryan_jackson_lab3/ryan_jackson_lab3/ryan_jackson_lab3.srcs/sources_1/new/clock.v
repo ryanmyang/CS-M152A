@@ -40,7 +40,7 @@ module clock(
     always @ (posedge clk) begin
          if(counter_1hz == HALF_PERIOD_1hz - 1) begin
             counter_1hz <= 0;
-            clk_1hz = ~clk_1hz;
+            clk_1hz <= ~clk_1hz;
          end
          else begin
             counter_1hz <= counter_1hz + 1;
@@ -48,7 +48,7 @@ module clock(
          
          if(counter_2hz == HALF_PERIOD_2hz - 1) begin
              counter_2hz <= 0;
-             clk_2hz = ~clk_2hz;
+             clk_2hz <= ~clk_2hz;
           end
           else begin
              counter_2hz <= counter_2hz + 1;
@@ -56,7 +56,7 @@ module clock(
           
           if(counter_4hz == HALF_PERIOD_4hz - 1) begin
                counter_4hz <= 0;
-               clk_4hz = ~clk_4hz;
+               clk_4hz <= ~clk_4hz;
             end
             else begin
                counter_4hz <= counter_4hz + 1;
@@ -64,7 +64,7 @@ module clock(
             
            if(counter_100hz == HALF_PERIOD_100hz - 1) begin
               counter_100hz <= 0;
-              clk_100hz = ~clk_100hz;
+              clk_100hz <= ~clk_100hz;
            end
            else begin
               counter_100hz <= counter_100hz + 1;
