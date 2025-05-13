@@ -24,7 +24,7 @@ module clock(
         input wire clk,
         output reg clk_1hz,
         output reg clk_2hz,
-        output reg clk_100hz,
+        output reg clk_500hz,
         output reg clk_4hz
     );
     
@@ -34,8 +34,8 @@ module clock(
     reg [24:0] counter_2hz  = 0;
     integer HALF_PERIOD_4hz = 12500000;
     reg [24:0] counter_4hz  = 0;
-    integer HALF_PERIOD_100hz = 100000; //current value: 500
-    reg [18:0] counter_100hz  = 0;
+    integer HALF_PERIOD_500hz = 100000; //current value: 500
+    reg [18:0] counter_500hz  = 0;
 
     always @ (posedge clk) begin
          if(counter_1hz == HALF_PERIOD_1hz - 1) begin
@@ -62,12 +62,12 @@ module clock(
                counter_4hz <= counter_4hz + 1;
             end
             
-           if(counter_100hz == HALF_PERIOD_100hz - 1) begin
-              counter_100hz <= 0;
-              clk_100hz <= ~clk_100hz;
+           if(counter_500hz == HALF_PERIOD_500hz - 1) begin
+              counter_500hz <= 0;
+              clk_500hz <= ~clk_500hz;
            end
            else begin
-              counter_100hz <= counter_100hz + 1;
+              counter_500hz <= counter_500hz + 1;
            end
          
          
