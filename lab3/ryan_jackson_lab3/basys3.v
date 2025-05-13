@@ -32,7 +32,7 @@ module basys3 (/*AUTOARG*/
      stopwatch stopwatch (
          .clk_1hz(clk_1hz),
          .clk_2hz(clk_2hz),
-         .rst(rst),
+         .rst(rst_db),
          .enable(enable),
          .adj(adj),
          .sel(sel),
