@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module PmodKYPD(
+module basys3(
     clk,
     JB,
     an,
@@ -21,14 +21,14 @@ module PmodKYPD(
 	
 	wire [3:0] Decode;
 
-	Decoder C0(
+	Decoder Decoder (
 			.clk(clk),
 			.Row(JB[7:4]),
 			.Col(JB[3:0]),
 			.DecodeOut(Decode)
 	);
 
-	DisplayController C1(
+	DisplayController  DisplayController (
 			.DispVal(Decode),
 			.anode(an),
 			.segOut(seg)
