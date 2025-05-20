@@ -18,6 +18,12 @@ module Decoder(
 	// Count register
 	reg [19:0] sclk;
 
+	initial begin
+		Col = 4'b1111;
+		DecodeOut = 4'b0000;
+		sclk = 20'b0;
+	end
+
 	always @(posedge clk) begin
 
 			// 1ms
