@@ -13,9 +13,9 @@ module basys3 (/*AUTOARG*/
    
    wire clk_1hz;
   wire clk_2hz;
-   wire clk_100hz;
+   wire clk_500hz;
    wire clk_4hz;
-   clock clock_module (.clk(clk), .clk_1hz(clk_1hz), .clk_2hz(clk_2hz), .clk_100hz(clk_100hz), .clk_4hz(clk_4hz));
+   clock clock_module (.clk(clk), .clk_1hz(clk_1hz), .clk_2hz(clk_2hz), .clk_500hz(clk_500hz), .clk_4hz(clk_4hz));
    
      wire [3:0] dig3;
     wire [3:0] dig2;
@@ -24,23 +24,22 @@ module basys3 (/*AUTOARG*/
     reg enable;
     reg btnSDB;
      reg [1:0] sw_db;
-     reg [1:0] rst_db;
+     reg rst_db;
 
      wire adj = sw_db[1]; // set the adj wire to the debounced version of the switch
      wire sel = sw_db[0]; // set the sel wire to the debounced version of the switch
-     wire rst = rst_db[1]; // set the rst wire to the debounced version of the button
 
      stopwatch stopwatch (
          .clk_1hz(clk_1hz),
          .clk_2hz(clk_2hz),
-         .rst(rst),
+         .rst(rst_db),
          .enable(enable),
          .adj(adj),
          .sel(sel),
         .dig3(dig3), .dig2(dig2), .dig1(dig1), .dig0(dig0)
      );   
      display_mux display_mux(
-         .clk_100hz(clk_100hz),
+         .clk_500hz(clk_500hz),
          .clk_4hz(clk_4hz),
          .adj_sw(adj),
          .sel_sw(sel),
@@ -52,10 +51,10 @@ module basys3 (/*AUTOARG*/
          enable <= ~enable;
     end 
     
-    always @(posedge clk_100hz) begin
+    always @(posedge clk_500hz) begin
          btnSDB <= btnS;
          sw_db <= sw;
-         rst_db <= {rst_db[0], btnR};
+         rst_db <= btnR;
     end
 //   always @ (posedge clk) begin
         

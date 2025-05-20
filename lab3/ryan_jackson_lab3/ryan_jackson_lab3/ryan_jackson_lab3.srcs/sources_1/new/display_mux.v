@@ -21,7 +21,7 @@
 
 
 module display_mux(
-    input wire clk_100hz,
+    input wire clk_500hz,
     input [3:0] dig3,
     input [3:0] dig2,
     input [3:0] dig1,
@@ -42,7 +42,7 @@ module display_mux(
     wire [6:0] seg_data; // segment data for the current digit
     reg blank_this_digit; //flag to toggle when need to blank out digit on flash
     num_to_7seg decoder(.num(num), .seg(seg_data));
-    always @(posedge clk_100hz) begin
+    always @(posedge clk_500hz) begin
         // basically every cycle, increment which digit is active
         // when each digit is active, set the anode to 0 and the rest to 1
         // and set the input num so that the decoder can update the segment data
