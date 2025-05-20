@@ -2,14 +2,14 @@
 
 module PmodKYPD(
     clk,
-    JA,
+    JB,
     an,
     seg
     );
 	 
 	 
 	input clk;					// 100Mhz onboard clock
-	inout [7:0] JA;			// Port JA on Nexys3, JA[3:0] is Columns, JA[10:7] is rows
+	inout [7:0] JB;			// Port JB on Nexys3, JB[3:0] is Columns, JB[10:7] is rows
 	output [3:0] an;			// Anodes on seven segment display
 	output [6:0] seg;			// Cathodes on seven segment display
 
@@ -23,8 +23,8 @@ module PmodKYPD(
 
 	Decoder C0(
 			.clk(clk),
-			.Row(JA[7:4]),
-			.Col(JA[3:0]),
+			.Row(JB[7:4]),
+			.Col(JB[3:0]),
 			.DecodeOut(Decode)
 	);
 
