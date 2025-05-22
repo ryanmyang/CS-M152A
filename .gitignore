@@ -1,2 +1,3 @@
 *.out
 *.vcd
+*.DS_Store

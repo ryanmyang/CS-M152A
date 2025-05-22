@@ -1,84 +1,117 @@
 `timescale 1ns / 1ps
+//----------------------------------------------------------------------
+//  basys3_tb.v  –  Test‑bench for keypad → seven‑segment design
+//----------------------------------------------------------------------
 
-module basys3_tb();
-    // Test bench signals
+module basys3_tb;
+
+    //------------------------------------------------------------------
+    // 100 MHz system clock
+    //------------------------------------------------------------------
     reg clk;
-    reg [7:0] keypad_state;  // Simulated keypad state
+    initial        clk = 1'b0;
+    always #5 clk = ~clk;          // 10 ns period
+
+    //------------------------------------------------------------------
+    // Shared JB bus (row & column lines)
+    //------------------------------------------------------------------
+    wire [7:0] JB;
+
+    // ---------- columns (driven ONLY by DUT) ----------
+    wire [3:0] col_from_dut;           // probe
+    assign col_from_dut = JB[3:0];     // NO TB drive on columns
+
+    // ---------- rows (driven ONLY by TB) ---------------
+    reg  [3:0] row_drive_tb;           // 0 when pressed, Z when idle
+    assign JB[7:4] = row_drive_tb;
+
+    // start with rows floating high (idle)
+    initial row_drive_tb = 4'b1111;
+
+    //------------------------------------------------------------------
+    // DUT instantiation
+    //------------------------------------------------------------------
     wire [3:0] an;
     wire [6:0] seg;
-    
-    // Instantiate the unit under test
+
     basys3 uut (
-        .clk(clk),
-        .JB(keypad_state),  // Connect the simulated keypad state directly
-        .an(an),
-        .seg(seg)
+        .clk (clk),
+        .JB  (JB),
+        .an  (an),
+        .seg (seg)
     );
-    
-    // Clock generation
-    initial begin
-        clk = 0;
-        forever #5 clk = ~clk; // 100MHz clock
-    end
-    
-    // Waveform dump for simulation
-    initial begin
-        $dumpfile("wave.vcd");
-        $dumpvars(0, basys3_tb);
-    end
-    
-    // Task to simulate a button press
-    // row: 0=R1, 1=R2, 2=R3, 3=R4
-    // col: 0=C1, 1=C2, 2=C3, 3=C4
+
+    //------------------------------------------------------------------
+    // Helper task : emulate a key press
+    // row  = 0‑3  (top to bottom)
+    // col  = 0‑3  (left to right)
+    // cycles = # of clock cycles to hold the key down
+    //------------------------------------------------------------------
     task press_button;
-        input [1:0] row;
-        input [1:0] col;
-        input [31:0] press_time;
-        begin
-            // Set the corresponding row and column low (simulate button press)
-            keypad_state = ~((4'b0001 << row) | (4'b0001 << (col + 4)));
-            // Hold the press for the specified time
-            repeat (press_time) @(posedge clk);
-            // Release the button (all signals high)
-            keypad_state = 8'b11111111;
-        end
+        input  [1:0] row;
+        input  [1:0] col;
+        input  integer cycles;
+    begin
+        // 1. be sure no row is asserted
+        row_drive_tb = 4'b1111;
+
+        // 2. wait until the desired column goes LOW first
+        @(posedge clk);
+        while (col_from_dut[3-col] != 1'b0)
+            @(posedge clk);
+            
+
+        // 3. NOW pull the required row low
+        row_drive_tb[3-row] = 1'b0;
+
+        // 4. keep it low for a few cycles (12 is fine)
+        repeat (cycles) @(posedge clk);
+
+        // 5. wait until that column returns HIGH
+        while (col_from_dut[3-col] == 1'b0)
+            @(posedge clk);
+
+        // 6. release (all rows high again)
+        row_drive_tb = 4'b1111;
+    end
     endtask
-    
-    // Test sequence
+
+    //------------------------------------------------------------------
+    //  Stimulus sequence
+    //------------------------------------------------------------------
     initial begin
-        // Start with all signals high (no button pressed)
-        keypad_state = 8'b11111111;
-        // Wait for initial setup
-        #1000000;
-        
-        // Test each button
-        // Row 1
-        press_button(2'd0, 2'd0, 100000); // 1
-        press_button(2'd0, 2'd1, 100000); // 2
-        press_button(2'd0, 2'd2, 100000); // 3
-        press_button(2'd0, 2'd3, 100000); // A
-        
-        // Row 2
-        press_button(2'd1, 2'd0, 100000); // 4
-        press_button(2'd1, 2'd1, 100000); // 5
-        press_button(2'd1, 2'd2, 100000); // 6
-        press_button(2'd1, 2'd3, 100000); // B
-        
-        // Row 3
-        press_button(2'd2, 2'd0, 100000); // 7
-        press_button(2'd2, 2'd1, 100000); // 8
-        press_button(2'd2, 2'd2, 100000); // 9
-        press_button(2'd2, 2'd3, 100000); // C
-        
-        // Row 4
-        press_button(2'd3, 2'd0, 100000); // 0
-        press_button(2'd3, 2'd1, 100000); // F
-        press_button(2'd3, 2'd2, 100000); // E
-        press_button(2'd3, 2'd3, 100000); // D
-        
-        // End simulation
-        #1000000;
+         $dumpfile("wave.vcd");
+        $dumpvars(0, basys3_tb);
+        // Small startup delay
+        repeat (20) @(posedge clk);
+
+        // ----- Row 0 : 1 2 3 A -----
+        press_button(2'd0, 2'd0, 12);   // 1
+        press_button(2'd0, 2'd1, 12);   // 2
+        press_button(2'd0, 2'd2, 12);   // 3
+        press_button(2'd0, 2'd3, 12);   // A
+
+        // ----- Row 1 : 4 5 6 B -----
+        press_button(2'd1, 2'd0, 12);   // 4
+        press_button(2'd1, 2'd1, 12);   // 5
+        press_button(2'd1, 2'd2, 12);   // 6
+        press_button(2'd1, 2'd3, 12);   // B
+
+        // ----- Row 2 : 7 8 9 C -----
+        press_button(2'd2, 2'd0, 12);   // 7
+        press_button(2'd2, 2'd1, 12);   // 8
+        press_button(2'd2, 2'd2, 12);   // 9
+        press_button(2'd2, 2'd3, 12);   // C
+
+        // ----- Row 3 : 0 F E D -----
+        press_button(2'd3, 2'd0, 12);   // 0
+        press_button(2'd3, 2'd1, 12);   // F
+        press_button(2'd3, 2'd2, 12);   // E
+        press_button(2'd3, 2'd3, 12);   // D
+
+        // Finish simulation
+        #100000;
         $finish;
     end
-    
-endmodule 
+
+endmodule
