@@ -3,28 +3,17 @@
 module basys3_tb();
     // Test bench signals
     reg clk;
-    wire [7:0] JB;
+    reg [7:0] keypad_state;  // Simulated keypad state
     wire [3:0] an;
     wire [6:0] seg;
-    
-    // Registers to drive the row lines (simulate button press)
-    reg [3:0] row_drive;
-    // Columns are driven by the Decoder, so we leave them as wires
-    wire [3:0] col_drive;
-    
-    // Connect JB: upper 4 bits are rows (driven by testbench), lower 4 bits are columns (driven by DUT)
-    assign JB = {row_drive, col_drive};
     
     // Instantiate the unit under test
     basys3 uut (
         .clk(clk),
-        .JB(JB),
+        .JB(keypad_state),  // Connect the simulated keypad state directly
         .an(an),
         .seg(seg)
     );
-    
-    // Connect col_drive to the Decoder's output inside the DUT
-    assign col_drive = uut.Decoder.Col;
     
     // Clock generation
     initial begin
@@ -38,60 +27,57 @@ module basys3_tb();
         $dumpvars(0, basys3_tb);
     end
     
-    // Task to simulate a button press at a given row and column
-    // row_idx: 0=R1, 1=R2, 2=R3, 3=R4
-    // col_pattern: value of col_drive when the Decoder is scanning the desired column
+    // Task to simulate a button press
+    // row: 0=R1, 1=R2, 2=R3, 3=R4
+    // col: 0=C1, 1=C2, 2=C3, 3=C4
     task press_button;
-        input [1:0] row_idx;
-        input [3:0] col_pattern;
+        input [1:0] row;
+        input [1:0] col;
         input [31:0] press_time;
         begin
-            // Wait until the Decoder is scanning the desired column
-            while (col_drive !== col_pattern) @(posedge clk);
-            // Set the corresponding row low (simulate button press)
-            row_drive = ~(4'b0001 << row_idx);
+            // Set the corresponding row and column low (simulate button press)
+            keypad_state = ~((4'b0001 << row) | (4'b0001 << (col + 4)));
             // Hold the press for the specified time
             repeat (press_time) @(posedge clk);
-            // Release the button (all rows high)
-            row_drive = 4'b1111;
+            // Release the button (all signals high)
+            keypad_state = 8'b11111111;
         end
     endtask
     
     // Test sequence
     initial begin
-        // Start with all rows high (no button pressed)
-        row_drive = 4'b1111;
+        // Start with all signals high (no button pressed)
+        keypad_state = 8'b11111111;
         // Wait for initial setup
-        #100;
+        #1000000;
         
-        // The Decoder scans columns in this order:
-        // C1: 4'b0111, C2: 4'b1011, C3: 4'b1101, C4: 4'b1110
-        // For each button, wait for the Decoder to scan the column, then pull the appropriate row low
-        // Button order: 1 2 3 A, 4 5 6 B, 7 8 9 C, 0 F E D
+        // Test each button
+        // Row 1
+        press_button(2'd0, 2'd0, 100000); // 1
+        press_button(2'd0, 2'd1, 100000); // 2
+        press_button(2'd0, 2'd2, 100000); // 3
+        press_button(2'd0, 2'd3, 100000); // A
         
-        // Row 1 (R1 = 0)
-        press_button(2'd0, 4'b0111, 1000); // 1
-        press_button(2'd0, 4'b1011, 1000); // 2
-        press_button(2'd0, 4'b1101, 1000); // 3
-        press_button(2'd0, 4'b1110, 1000); // A
-        // Row 2 (R2 = 1)
-        press_button(2'd1, 4'b0111, 1000); // 4
-        press_button(2'd1, 4'b1011, 1000); // 5
-        press_button(2'd1, 4'b1101, 1000); // 6
-        press_button(2'd1, 4'b1110, 1000); // B
-        // Row 3 (R3 = 2)
-        press_button(2'd2, 4'b0111, 1000); // 7
-        press_button(2'd2, 4'b1011, 1000); // 8
-        press_button(2'd2, 4'b1101, 1000); // 9
-        press_button(2'd2, 4'b1110, 1000); // C
-        // Row 4 (R4 = 3)
-        press_button(2'd3, 4'b0111, 1000); // 0
-        press_button(2'd3, 4'b1011, 1000); // F
-        press_button(2'd3, 4'b1101, 1000); // E
-        press_button(2'd3, 4'b1110, 1000); // D
+        // Row 2
+        press_button(2'd1, 2'd0, 100000); // 4
+        press_button(2'd1, 2'd1, 100000); // 5
+        press_button(2'd1, 2'd2, 100000); // 6
+        press_button(2'd1, 2'd3, 100000); // B
+        
+        // Row 3
+        press_button(2'd2, 2'd0, 100000); // 7
+        press_button(2'd2, 2'd1, 100000); // 8
+        press_button(2'd2, 2'd2, 100000); // 9
+        press_button(2'd2, 2'd3, 100000); // C
+        
+        // Row 4
+        press_button(2'd3, 2'd0, 100000); // 0
+        press_button(2'd3, 2'd1, 100000); // F
+        press_button(2'd3, 2'd2, 100000); // E
+        press_button(2'd3, 2'd3, 100000); // D
         
         // End simulation
-        #10000;
+        #1000000;
         $finish;
     end
     

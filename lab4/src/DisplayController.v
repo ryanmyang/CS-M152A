@@ -1,23 +1,11 @@
 `timescale 1ns / 1ps
 
 module DisplayController(
-    DispVal,
-    anode,
-    segOut
+    input [3:0] DispVal,			// Output from the Decoder
+    output wire [3:0] anode,		// Controls the display digits
+    output reg [6:0] segOut		// Controls which digit to display
     );
 
-
-    input [3:0] DispVal;			// Output from the Decoder
-    output [3:0] anode;				// Controls the display digits
-    output [6:0] segOut;			// Controls which digit to display
-
-
-	
-	// Output wires and registers
-	wire [3:0] anode;
-	reg [6:0] segOut;
-
-	
 	// only display the rightmost digit
 	assign anode = 4'b1110;
 	

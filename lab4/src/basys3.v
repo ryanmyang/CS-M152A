@@ -2,9 +2,9 @@
 
 module basys3(
     input clk, // 100Mhz onboard clock
-    input JB, // Port JB on Nexys3, JB[3:0] is Columns, JB[10:7] is rows
-    output wire an, // Anodes on seven segment display
-    output wire seg // Cathodes on seven segment display
+    input [7:0] JB, // Port JB on Nexys3, JB[3:0] is Columns, JB[7:4] is rows
+    output wire [3:0] an, // Anodes on seven segment display
+    output wire [6:0] seg // Cathodes on seven segment display
     );
 	
 	

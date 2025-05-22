@@ -1,20 +1,10 @@
-module Decoder(
-    clk,
-    Row,
-    Col,
-    DecodeOut
+module KeypadInput(
+    input clk,						// 100MHz onboard clock
+    input [3:0] Row,				// Rows on KYPD
+    output reg [3:0] Col,			// Columns on KYPD
+    output reg [3:0] DecodeOut	// Output data
     );
 
-    input clk;						// 100MHz onboard clock
-    input [3:0] Row;				// Rows on KYPD
-    output [3:0] Col;			// Columns on KYPD
-    output [3:0] DecodeOut;	// Output data
-
-	
-	// Output wires and registers
-	reg [3:0] Col;
-	reg [3:0] DecodeOut;
-	
 	// Count register
 	reg [19:0] sclk;
 
