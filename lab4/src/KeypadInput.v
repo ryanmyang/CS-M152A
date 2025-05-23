@@ -2,7 +2,8 @@ module KeypadInput(
     input clk,						// 100MHz onboard clock
     input [3:0] Row,				// Rows on KYPD
     output reg [3:0] Col,			// Columns on KYPD
-    output reg [3:0] DecodeOut	// Output data
+    output reg [3:0] DecodeOut,	// Output data
+	output reg KeyPressed		// Output key pressed
     );
 
 	// Count register
@@ -12,6 +13,7 @@ module KeypadInput(
 		Col = 4'b1111;
 		DecodeOut = 4'b0000;
 		sclk = 20'b0;
+		KeyPressed = 1'b0;
 	end
 
 	always @(posedge clk) begin
@@ -41,6 +43,11 @@ module KeypadInput(
 				else if(Row == 4'b1110) begin
 					DecodeOut <= 4'b0000; 		//0
 				end
+				else begin
+					KeyPressed <= 1'b0;
+					DecodeOut <= 4'b0000;
+				end
+				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= sclk + 1'b1;
 			end
 
@@ -69,6 +76,11 @@ module KeypadInput(
 				else if(Row == 4'b1110) begin
 					DecodeOut <= 4'b1111; 		//F
 				end
+				else begin
+					KeyPressed <= 1'b0;
+					DecodeOut <= 4'b0000;
+				end
+				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= sclk + 1'b1;
 			end
 
@@ -97,7 +109,11 @@ module KeypadInput(
 				else if(Row == 4'b1110) begin
 					DecodeOut <= 4'b1110; 		//E
 				end
-
+				else begin
+					KeyPressed <= 1'b0;
+					DecodeOut <= 4'b0000;
+				end
+				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= sclk + 1'b1;
 			end
 
@@ -126,6 +142,11 @@ module KeypadInput(
 				else if(Row == 4'b1110) begin
 					DecodeOut <= 4'b1101; //D
 				end
+				else begin
+					KeyPressed <= 1'b0;
+					DecodeOut <= 4'b0000;
+				end
+				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= 20'b00000000000000000000;
 			end
 

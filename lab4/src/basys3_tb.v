@@ -64,8 +64,8 @@ module basys3_tb;
         // 3. NOW pull the required row low
         row_drive_tb[3-row] = 1'b0;
 
-        // 4. keep it low for a few cycles (12 is fine)
-        repeat (cycles) @(posedge clk);
+        // // 4. keep it low for a few cycles (12 is fine)
+        // repeat (cycles) @(posedge clk);
 
         // 5. wait until that column returns HIGH
         while (col_from_dut[3-col] == 1'b0)
@@ -73,6 +73,7 @@ module basys3_tb;
 
         // 6. release (all rows high again)
         row_drive_tb = 4'b1111;
+        repeat (cycles) @(posedge clk);
     end
     endtask
 
