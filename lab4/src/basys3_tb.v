@@ -88,8 +88,11 @@ module basys3_tb;
 
         // ----- Row 0 : 1 2 3 A -----
         press_button(2'd0, 2'd0, 12);   // 1
+        #1000000;
         press_button(2'd0, 2'd1, 12);   // 2
+        #1000000;
         press_button(2'd0, 2'd2, 12);   // 3
+        #1000000;
         press_button(2'd0, 2'd3, 12);   // A
 
         // ----- Row 1 : 4 5 6 B -----
