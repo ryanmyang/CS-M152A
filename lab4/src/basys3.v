@@ -37,6 +37,9 @@ module basys3(
     reg [3:0] digbuffer0 = 0, digbuffer1 = 0, digbuffer2 = 0, digbuffer3 = 0;
     reg [3:0] opbuffer = 0;
 
+    // buffers when doing operations
+    reg [15:0] op1, op2, sum;
+
 
     task automatic do_clear; // task to do the clear logic
     begin
@@ -104,9 +107,24 @@ module basys3(
                             end
                         end
                         else if (KeypadRaw == 4'he) begin // equals - handle the operation
-                            // TODO: add operator logic
+                            // TODO: add all operator logic
                             case (opbuffer)
                                 4'ha: begin // +
+                                    // TODO: add overflow logic and any general error logic
+                                    
+                                    // shove nums together
+                                    op1 = {digbuffer3, digbuffer2, digbuffer1, digbuffer0};
+                                    op2 = {dig3,        dig2,        dig1,        dig0};
+
+                                    sum = op1 + op2;   // 16‑bit hex addition
+
+                                    // put the result back into the display digits
+                                    dig0 <= sum[3:0];
+                                    dig1 <= sum[7:4];
+                                    dig2 <= sum[11:8];
+                                    dig3 <= sum[15:12];
+                                    opbuffer <= 0;
+                                    state <= 2'b00;
                                     
                                 end
                                 4'hb: begin // -
@@ -119,6 +137,12 @@ module basys3(
                                     // TODO: add / logic
                                 end
                             endcase
+                            //after operation done, clear digit and op buffers
+                            digbuffer0 <= 0;
+                            digbuffer1 <= 0;
+                            digbuffer2 <= 0;
+                            digbuffer3 <= 0;
+                            opbuffer <= 0;
                         end
                         else begin  // if press clear, set all digs to 0, clear all data
                             do_clear;

@@ -103,8 +103,8 @@ module basys3_tb;
         #1000000;
         press_button(2'd1, 2'd2, 12);   // 6
         #1000000;
-        press_button(2'd1, 2'd3, 12);   // B
-        #1000000;
+        press_button(2'd3, 2'd2, 12);   // EQUALS
+        #2000000;
 
         // ----- Row 2 : 7 8 9 C -----
         press_button(2'd2, 2'd0, 12);   // 7
