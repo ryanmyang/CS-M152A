@@ -94,27 +94,39 @@ module basys3_tb;
         press_button(2'd0, 2'd2, 12);   // 3
         #1000000;
         press_button(2'd0, 2'd3, 12);   // A
+        #1000000;
 
         // ----- Row 1 : 4 5 6 B -----
         press_button(2'd1, 2'd0, 12);   // 4
+        #1000000;
         press_button(2'd1, 2'd1, 12);   // 5
+        #1000000;
         press_button(2'd1, 2'd2, 12);   // 6
+        #1000000;
         press_button(2'd1, 2'd3, 12);   // B
+        #1000000;
 
         // ----- Row 2 : 7 8 9 C -----
         press_button(2'd2, 2'd0, 12);   // 7
+        #1000000;
         press_button(2'd2, 2'd1, 12);   // 8
+        #1000000;
         press_button(2'd2, 2'd2, 12);   // 9
+        #1000000;
         press_button(2'd2, 2'd3, 12);   // C
+        #1000000;
 
         // ----- Row 3 : 0 F E D -----
         press_button(2'd3, 2'd0, 12);   // 0
+        #1000000;
         press_button(2'd3, 2'd1, 12);   // F
+        #1000000;
         press_button(2'd3, 2'd2, 12);   // E
+        #1000000;
         press_button(2'd3, 2'd3, 12);   // D
 
         // Finish simulation
-        #100000;
+    #100000;
         $finish;
     end
 
