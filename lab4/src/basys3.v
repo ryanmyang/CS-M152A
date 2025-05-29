@@ -19,11 +19,22 @@ module basys3(
         .KeyPressed(KeyPressed)
     );
 
-    // Edge detection
-    reg PrevPressed = 0;
-    wire KeyStrobe = (KeyPressed && !PrevPressed);
-    always @(posedge clk)
-        PrevPressed <= KeyPressed;
+    // ------------------------------------------------------------------
+    //  Key-press lock-out :
+    //  Assert KeyStrobe exactly once per physical press, no matter how
+    //  many scan cycles KeypadInput may pulse KeyPressed (e.g. if the
+    //  row line stays low across several column samples).
+    // ------------------------------------------------------------------
+
+    reg keyLock = 1'b0;               // 1 while current key is held
+    wire KeyStrobe = KeyPressed && !keyLock;  // one-shot when lock is clear
+
+    always @(posedge clk) begin
+        if (KeyPressed)
+            keyLock <= 1'b1;          // lock as soon as a press is seen
+        else
+            keyLock <= 1'b0;          // release once all keys released
+    end
 
 	reg [1:0] state = 0;
     // state 0 will be entering first dig logic
