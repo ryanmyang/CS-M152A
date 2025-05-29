@@ -8,6 +8,16 @@ module KeypadInput(
 
 	// Count register
 	reg [19:0] sclk;
+	
+	// Debouncing registers
+	reg [3:0] StableKey = 4'b0000;      // Last stable key value
+	reg [3:0] CurrentKey = 4'b0000;     // Current detected key
+	reg KeyDetected = 1'b0;             // Raw key detection signal
+	reg [15:0] DebounceCounter = 0;     // Counter for debouncing
+	parameter DEBOUNCE_TIME = 16'd50000; // 0.5ms at 100MHz
+	
+	// Key release detection
+	reg KeyReleased = 1'b1;             // Track if key has been released
 
 	initial begin
 		Col = 4'b1111;
@@ -29,25 +39,28 @@ module KeypadInput(
 			else if(sclk == 20'b00011000011010101000) begin
 				//R1
 				if (Row == 4'b0111) begin
-					DecodeOut <= 4'b0001;		//1
+					CurrentKey <= 4'b0001;		//1
+					KeyDetected <= 1'b1;
 				end
 				//R2
 				else if(Row == 4'b1011) begin
-					DecodeOut <= 4'b0100; 		//4
+					CurrentKey <= 4'b0100; 		//4
+					KeyDetected <= 1'b1;
 				end
 				//R3
 				else if(Row == 4'b1101) begin
-					DecodeOut <= 4'b0111; 		//7
+					CurrentKey <= 4'b0111; 		//7
+					KeyDetected <= 1'b1;
 				end
 				//R4
 				else if(Row == 4'b1110) begin
-					DecodeOut <= 4'b0000; 		//0
+					CurrentKey <= 4'b0000; 		//0
+					KeyDetected <= 1'b1;
 				end
 				else begin
-					KeyPressed <= 1'b0;
-					DecodeOut <= 4'b0000;
+					KeyDetected <= 1'b0;
+					CurrentKey <= 4'b0000;
 				end
-				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= sclk + 1'b1;
 			end
 
@@ -62,25 +75,28 @@ module KeypadInput(
 			else if(sclk == 20'b00110000110101001000) begin
 				//R1
 				if (Row == 4'b0111) begin
-					DecodeOut <= 4'b0010; 		//2
+					CurrentKey <= 4'b0010; 		//2
+					KeyDetected <= 1'b1;
 				end
 				//R2
 				else if(Row == 4'b1011) begin
-					DecodeOut <= 4'b0101; 		//5
+					CurrentKey <= 4'b0101; 		//5
+					KeyDetected <= 1'b1;
 				end
 				//R3
 				else if(Row == 4'b1101) begin
-					DecodeOut <= 4'b1000; 		//8
+					CurrentKey <= 4'b1000; 		//8
+					KeyDetected <= 1'b1;
 				end
 				//R4
 				else if(Row == 4'b1110) begin
-					DecodeOut <= 4'b1111; 		//F
+					CurrentKey <= 4'b1111; 		//F
+					KeyDetected <= 1'b1;
 				end
 				else begin
-					KeyPressed <= 1'b0;
-					DecodeOut <= 4'b0000;
+					KeyDetected <= 1'b0;
+					CurrentKey <= 4'b0000;
 				end
-				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= sclk + 1'b1;
 			end
 
@@ -95,25 +111,28 @@ module KeypadInput(
 			else if(sclk == 20'b01001001001111101000) begin
 				//R1
 				if(Row == 4'b0111) begin
-					DecodeOut <= 4'b0011; 		//3	
+					CurrentKey <= 4'b0011; 		//3	
+					KeyDetected <= 1'b1;
 				end
 				//R2
 				else if(Row == 4'b1011) begin
-					DecodeOut <= 4'b0110; 		//6
+					CurrentKey <= 4'b0110; 		//6
+					KeyDetected <= 1'b1;
 				end
 				//R3
 				else if(Row == 4'b1101) begin
-					DecodeOut <= 4'b1001; 		//9
+					CurrentKey <= 4'b1001; 		//9
+					KeyDetected <= 1'b1;
 				end
 				//R4
 				else if(Row == 4'b1110) begin
-					DecodeOut <= 4'b1110; 		//E
+					CurrentKey <= 4'b1110; 		//E
+					KeyDetected <= 1'b1;
 				end
 				else begin
-					KeyPressed <= 1'b0;
-					DecodeOut <= 4'b0000;
+					KeyDetected <= 1'b0;
+					CurrentKey <= 4'b0000;
 				end
-				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= sclk + 1'b1;
 			end
 
@@ -128,25 +147,28 @@ module KeypadInput(
 			else if(sclk == 20'b01100001101010001000) begin
 				//R1
 				if(Row == 4'b0111) begin
-					DecodeOut <= 4'b1010; //A
+					CurrentKey <= 4'b1010; //A
+					KeyDetected <= 1'b1;
 				end
 				//R2
 				else if(Row == 4'b1011) begin
-					DecodeOut <= 4'b1011; //B
+					CurrentKey <= 4'b1011; //B
+					KeyDetected <= 1'b1;
 				end
 				//R3
 				else if(Row == 4'b1101) begin
-					DecodeOut <= 4'b1100; //C
+					CurrentKey <= 4'b1100; //C
+					KeyDetected <= 1'b1;
 				end
 				//R4
 				else if(Row == 4'b1110) begin
-					DecodeOut <= 4'b1101; //D
+					CurrentKey <= 4'b1101; //D
+					KeyDetected <= 1'b1;
 				end
 				else begin
-					KeyPressed <= 1'b0;
-					DecodeOut <= 4'b0000;
+					KeyDetected <= 1'b0;
+					CurrentKey <= 4'b0000;
 				end
-				KeyPressed <= (Row == 4'b0111 || Row == 4'b1011 || Row == 4'b1101 || Row == 4'b1110);
 				sclk <= 20'b00000000000000000000;
 			end
 
@@ -155,6 +177,38 @@ module KeypadInput(
 				sclk <= sclk + 1'b1;
 			end
 			
+	end
+	
+	// Debouncing logic - runs in parallel
+	always @(posedge clk) begin
+		if (KeyDetected) begin
+			// Key is being pressed
+			if (CurrentKey == StableKey) begin
+				// Same key still pressed
+				if (DebounceCounter < DEBOUNCE_TIME) begin
+					DebounceCounter <= DebounceCounter + 1;
+				end else if (KeyReleased) begin
+					// Key has been stable for debounce time and was previously released
+					KeyPressed <= 1'b1;
+					DecodeOut <= StableKey;
+					KeyReleased <= 1'b0;
+				end
+			end else begin
+				// Different key detected, reset debounce
+				StableKey <= CurrentKey;
+				DebounceCounter <= 0;
+				KeyPressed <= 1'b0;
+			end
+		end else begin
+			// No key pressed
+			if (DebounceCounter > 0) begin
+				DebounceCounter <= DebounceCounter - 1;
+			end else begin
+				StableKey <= 4'b0000;
+				KeyPressed <= 1'b0;
+				KeyReleased <= 1'b1;  // Mark that key has been released
+			end
+		end
 	end
 
 endmodule
