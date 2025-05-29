@@ -1,46 +1,62 @@
 `timescale 1ns / 1ps
-
+ 
 module basys3(
     input clk, // 100Mhz onboard clock
     inout [7:0] JB, // JB[3:0] = Col, JB[7:4] = Row
     output wire [3:0] an, // Display anodes
     output wire [6:0] seg // Segment cathodes
 );
-
+ 
+    integer half_period_500hz = 5000000;
+    reg [32:0] counter_500hz = 0;
+    reg clk_500hz;
+    always @ (posedge clk) begin
+        if (counter_500hz == half_period_500hz - 1) begin
+            counter_500hz <= 0;
+            clk_500hz <= ~clk_500hz;
+        end
+        else begin
+            counter_500hz <= counter_500hz + 1;
+        end
+ 
+    end
+ 
     // Keypad interface
     wire [3:0] KeypadRaw;
     wire  KeyPressed;
-
+ 
     KeypadInput KeypadInput (
         .clk(clk),
-        .Row(JB[7:4]),
-        .Col(JB[3:0]),
-        .DecodeOut(KeypadRaw),
+        .row(JB[7:4]),
+        .col(JB[3:0]),
+        .key(KeypadRaw),
         .KeyPressed(KeyPressed)
     );
-
+ 
     // Edge detection
     reg PrevPressed = 0;
-    wire KeyStrobe = (KeyPressed && !PrevPressed);
-    always @(posedge clk)
+    reg KeyStrobe = 0;
+    always @(posedge clk_500hz) begin
         PrevPressed <= KeyPressed;
-
+        KeyStrobe <= (KeyPressed && !PrevPressed);
+    end
+ 
 	reg [1:0] state = 0;
     // state 0 will be entering first dig logic
     // state 1 will be ERROR
-
+ 
     // Displayed digs (dig0 = rightmost)
     reg [3:0] dig0 = 0, dig1 = 0, dig2 = 0, dig3 = 0;
-
+ 
 	// dig Entry Tracking
 	reg [2:0] numLength = 0;
     reg [3:0] digbuffer0 = 0, digbuffer1 = 0, digbuffer2 = 0, digbuffer3 = 0;
     reg [3:0] opbuffer = 0;
-
+ 
     // buffers when doing operations
     reg [15:0] op1, op2, sum;
-
-
+ 
+ 
     task automatic do_clear; // task to do the clear logic
     begin
         digbuffer0 <= 0;
@@ -56,11 +72,11 @@ module basys3(
         state <= 2'b00;
     end
     endtask
-
+ 
     // e = equals, f = clear
-
+ 
     // On keypress, shift digs
-    always @(posedge clk) begin
+    always @(posedge clk_500hz) begin
         if (KeyStrobe) begin
 			case (state) 
 				 2'b00: begin // entering first dig logic
@@ -85,11 +101,11 @@ module basys3(
                         end
 					end
                     else begin
-
+ 
                         if (KeypadRaw != 4'he && KeypadRaw != 4'hf) begin // if press operator, (not equal or clear)
                             // if operator but already have operator, set error state
                             if (opbuffer != 0) begin
-                                state <= 2'b01;
+//                                state <= 2'b01;
                             end
                             else begin
                                 // set the state to the operator, save data
@@ -111,13 +127,13 @@ module basys3(
                             case (opbuffer)
                                 4'ha: begin // +
                                     // TODO: add overflow logic and any general error logic
-                                    
+ 
                                     // shove nums together
                                     op1 = {digbuffer3, digbuffer2, digbuffer1, digbuffer0};
                                     op2 = {dig3,        dig2,        dig1,        dig0};
-
-                                    sum = op1 + op2;   // 16‑bit hex addition
-
+ 
+                                    sum = op1 + op2;   // 16-bit hex addition
+ 
                                     // put the result back into the display digits
                                     dig0 <= sum[3:0];
                                     dig1 <= sum[7:4];
@@ -125,7 +141,7 @@ module basys3(
                                     dig3 <= sum[15:12];
                                     opbuffer <= 0;
                                     state <= 2'b00;
-                                    
+ 
                                 end
                                 4'hb: begin // -
                                     // TODO: add - logic
@@ -147,7 +163,7 @@ module basys3(
                         else begin  // if press clear, set all digs to 0, clear all data
                             do_clear;
                         end
-
+ 
                     end
                  end
                  2'b01: begin // ERROR state
@@ -156,18 +172,18 @@ module basys3(
                     end
                  end
 			endcase
-			
+ 
         end
     end
-
+ 
     // Display all 4 digs with a multiplexing controller
     wire [15:0] disp_data = {dig3, dig2, dig1, dig0};
-
+ 
     DisplayController display (
         .clk(clk),
         .digits(disp_data),
         .an(an),
         .seg(seg)
     );
-
+ 
 endmodule
