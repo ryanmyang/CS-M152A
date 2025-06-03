@@ -75,50 +75,88 @@ module basys3_tb;
     initial begin
         $dumpfile("wave.vcd");
         $dumpvars(0, basys3_tb);
+        
         // Small startup delay
         repeat (20) @(posedge clk);
 
-        // ----- Row 0 : 1 2 3 A -----
+        // Test 1: Basic operation 1+1=2
+        $display("Test 1: 1+1=2");
         press_button(2'd0, 2'd0, 12);   // 1
-        #1000000;
-        press_button(2'd0, 2'd1, 12);   // 2
-        #1000000;
-        press_button(2'd0, 2'd2, 12);   // 3
         #1000000;
         press_button(2'd0, 2'd3, 12);   // A (+)
         #1000000;
-
-        // ----- Row 1 : 4 5 6 E -----
-        press_button(2'd1, 2'd0, 12);   // 4
+        press_button(2'd0, 2'd0, 12);   // 1
         #1000000;
-        press_button(2'd1, 2'd1, 12);   // 5
-        #1000000;
-        press_button(2'd1, 2'd2, 12);   // 6
-        #1000000;
-        press_button(2'd3, 2'd2, 12);   // E (=)
+        press_button(2'd3, 2'd2, 12);   // E (=) -> Should show 2
         #2000000;
 
-        // ----- Row 2 : 7 8 9 C -----
-        press_button(2'd2, 2'd0, 12);   // 7
+        // Test 2: Chain operation 2+2=4 (using result from previous)
+        $display("Test 2: 2+2=4 (chained)");
+        press_button(2'd0, 2'd3, 12);   // A (+)
+        #1000000;
+        press_button(2'd0, 2'd1, 12);   // 2
+        #1000000;
+        press_button(2'd3, 2'd2, 12);   // E (=) -> Should show 4
+        #2000000;
+
+        // Test 3: Chain operation 4*3=C (hex for 12)
+        $display("Test 3: 4*3=C (chained)");
+        press_button(2'd2, 2'd3, 12);   // C (*)
+        #1000000;
+        press_button(2'd0, 2'd2, 12);   // 3
+        #1000000;
+        press_button(2'd3, 2'd2, 12);   // E (=) -> Should show C (12 in hex)
+        #2000000;
+
+        // Test 4: Chain operation C-8=4
+        $display("Test 4: C-8=4 (chained)");
+        press_button(2'd1, 2'd3, 12);   // B (-)
         #1000000;
         press_button(2'd2, 2'd1, 12);   // 8
         #1000000;
-        press_button(2'd2, 2'd2, 12);   // 9
-        #1000000;
-        press_button(2'd2, 2'd3, 12);   // C
-        #1000000;
+        press_button(2'd3, 2'd2, 12);   // E (=) -> Should show 4
+        #2000000;
 
-        // ----- Row 3 : 0 F E D -----
+        // Test 5: Clear and start fresh 7+5=C
+        $display("Test 5: Clear and start fresh 7+5=C");
+        press_button(2'd3, 2'd1, 12);   // F (clear)
+        #1000000;
+        press_button(2'd2, 2'd0, 12);   // 7
+        #1000000;
+        press_button(2'd0, 2'd3, 12);   // A (+)
+        #1000000;
+        press_button(2'd1, 2'd1, 12);   // 5
+        #1000000;
+        press_button(2'd3, 2'd2, 12);   // E (=) -> Should show C (12 in hex)
+        #2000000;
+
+        // Test 6: Division with chaining C/4=3
+        $display("Test 6: C/4=3 (chained)");
+        press_button(2'd3, 2'd3, 12);   // D (/)
+        #1000000;
+        press_button(2'd1, 2'd0, 12);   // 4
+        #1000000;
+        press_button(2'd3, 2'd2, 12);   // E (=) -> Should show 3
+        #2000000;
+
+        // Test 7: Test multi-digit numbers 10+5=15
+        $display("Test 7: Multi-digit 10+5=15");
+        press_button(2'd3, 2'd1, 12);   // F (clear)
+        #1000000;
+        press_button(2'd0, 2'd0, 12);   // 1
+        #1000000;
         press_button(2'd3, 2'd0, 12);   // 0
         #1000000;
-        press_button(2'd3, 2'd1, 12);   // F
+        press_button(2'd0, 2'd3, 12);   // A (+)
         #1000000;
-        press_button(2'd3, 2'd2, 12);   // E
+        press_button(2'd1, 2'd1, 12);   // 5
         #1000000;
-        press_button(2'd3, 2'd3, 12);   // D
+        press_button(2'd3, 2'd2, 12);   // E (=) -> Should show 15 (hex)
+        #2000000;
 
         // Finish simulation
-      #100000;
+        $display("Simulation complete");
+        #100000;
         $finish;
     end
 
