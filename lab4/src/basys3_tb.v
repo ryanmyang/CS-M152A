@@ -180,6 +180,80 @@ module basys3_tb;
         press_button(2'd3, 2'd2, 12);   // E (=) -> Should show 15 (hex)
         #5000000;
 
+        //------------------------------------------------------------------
+        //  Test 5  –‑  provoke ERROR (divide‑by‑zero) then clear with F
+        //            Expected: display enters error state, then resets
+        //------------------------------------------------------------------
+        $display("Test 5: ERROR on divide‑by‑zero, then clear");
+
+        press_button(2'd3, 2'd1, 12);   // F  (ensure fresh clear)
+        #5000000;
+
+        press_button(2'd1, 2'd0, 12);   // 4  (first operand = 4)
+        #5000000;
+
+        press_button(2'd3, 2'd3, 12);   // D  (divide operator)
+        #5000000;
+
+        press_button(2'd3, 2'd0, 12);   // 0  (second operand = 0)
+        #5000000;
+
+        press_button(2'd3, 2'd2, 12);   // E  (=)  ➜ should enter ERROR
+        #8000000;
+
+        press_button(2'd1, 2'd0, 12);   // 4 (should not work)
+        #8000000;
+
+        press_button(2'd3, 2'd1, 12);   // F  (clear) ➜ should reset to 0000
+        #8000000;
+
+
+
+        $display("Test 6: 9‑4=5  → ×3=F  → ÷3=5");
+
+ 
+        // ----- 9 -----
+        press_button(2'd2, 2'd2, 12);       // 9
+        #8000000;
+        #8000000;
+
+        // -----  – -----
+        press_button(2'd1, 2'd3, 12);       // B  (minus)
+        #5000000;
+
+        // ----- 4 -----
+        press_button(2'd1, 2'd0, 12);       // 4
+        #5000000;
+
+        // -----   =   → expect 5 -----
+        press_button(2'd3, 2'd2, 12);       // E  (equals)
+        #8000000;
+
+        // -----  ×  -----
+        press_button(2'd2, 2'd3, 12);       // C  (multiply)
+        #5000000;
+
+        // ----- 3 -----
+        press_button(2'd0, 2'd2, 12);       // 3
+        #5000000;
+
+        // -----   =   → expect F (15) -----
+        press_button(2'd3, 2'd2, 12);       // E
+        #8000000;
+
+        // -----  ÷  -----
+        press_button(2'd3, 2'd3, 12);       // D  (divide)
+        #5000000;
+
+        // ----- 3 -----
+        press_button(2'd0, 2'd2, 12);       // 3
+        #5000000;
+
+        // -----   =   → expect 5 -----
+        press_button(2'd3, 2'd2, 12);       // E
+        #8000000;
+
+
         // Finish simulation
         $display("Simulation complete");
         #100000;

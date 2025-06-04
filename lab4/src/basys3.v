@@ -38,7 +38,7 @@ module basys3(
     reg [3:0] opbuffer = 0;
 
     // buffers when doing operations
-    reg [15:0] op1, op2, sum;
+    reg [15:0] op1, op2, result, op_error;
 
 
     task automatic do_clear; // task to do the clear logic
@@ -62,6 +62,7 @@ module basys3(
     // On keypress, shift digs
     always @(posedge clk) begin
         if (KeyStrobe) begin
+            op_error = 0;
 			case (state) 
 				 2'b00: begin // entering first dig logic
                  // Start with operand logic
@@ -108,36 +109,38 @@ module basys3(
                         end
                         else if (KeypadRaw == 4'he) begin // equals - handle the operation
                             // TODO: add all operator logic
+                             // shove nums together
+                            op1 = {digbuffer3, digbuffer2, digbuffer1, digbuffer0};
+                            op2 = {dig3,        dig2,        dig1,        dig0};
+
                             case (opbuffer)
-                                4'ha: begin // +
-                                    // TODO: add overflow logic and any general error logic
-                                    
-                                    // shove nums together
-                                    op1 = {digbuffer3, digbuffer2, digbuffer1, digbuffer0};
-                                    op2 = {dig3,        dig2,        dig1,        dig0};
-
-                                    sum = op1 + op2;   // 16‑bit hex addition
-
-                                    // put the result back into the display digits
-                                    dig0 <= sum[3:0];
-                                    dig1 <= sum[7:4];
-                                    dig2 <= sum[11:8];
-                                    dig3 <= sum[15:12];
-                                    opbuffer <= 0;
-                                    state <= 2'b00;
-                                    
+                                4'ha: begin  // +
+                                    result = op1 + op2;
+                                    if (result > 16'hFFFF) op_error = 1;
                                 end
-                                4'hb: begin // -
-                                    // TODO: add - logic
+                                4'hb: begin  // –
+                                    if (op1 < op2) op_error = 1;
+                                    else result = op1 - op2;
                                 end
-                                4'hc: begin // *
-                                    // TODO: add * logic
+                                4'hc: begin  // ×
+                                    result = op1 * op2;
+                                    if (result > 16'hFFFF) op_error = 1;
                                 end
-                                4'hd: begin // /
-                                    // TODO: add / logic
+                                4'hd: begin  // ÷
+                                    if (op2 == 0) op_error = 1;
+                                    else result = op1 / op2;
                                 end
+                                default: op_error = 1;
                             endcase
                             //after operation done, clear digit and op buffers
+                            if (op_error) begin
+                                state <= 2'b01;                 // ERROR
+                                result = 16'hEEEE;
+                                op_error = 0;
+                            end
+
+                            {dig3,dig2,dig1,dig0} <= result; // display
+
                             digbuffer0 <= 0;
                             digbuffer1 <= 0;
                             digbuffer2 <= 0;
